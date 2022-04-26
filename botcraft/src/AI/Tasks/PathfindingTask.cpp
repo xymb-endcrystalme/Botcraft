@@ -398,12 +398,13 @@ namespace Botcraft
         Position current_position;
         do
         {
+            /*
             // Wait until we are on the ground
             while (!local_player->GetOnGround())
             {
                 client.Yield();
             }
-
+*/
             // Get the position
             current_position = Position(std::floor(local_player->GetPosition().x), std::floor(local_player->GetPosition().y), std::floor(local_player->GetPosition().z));
 

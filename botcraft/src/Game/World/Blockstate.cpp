@@ -71,7 +71,7 @@ namespace Botcraft
                     colliders[i] = AABB(new_center, Vector3<double>(colliders[i].GetHalfSize().x, colliders[i].GetHalfSize().z, colliders[i].GetHalfSize().y));
                     break;
                 default:
-                    LOG_ERROR("Blockstate X rotation should be in 90° steps");
+                    LOG_ERROR("Blockstate X rotation should be in 90ï¿½ steps");
                     break;
                 }
             }
@@ -107,7 +107,7 @@ namespace Botcraft
                     colliders[i] = AABB(new_center, Vector3<double>(colliders[i].GetHalfSize().z, colliders[i].GetHalfSize().y, colliders[i].GetHalfSize().x));
                     break;
                 default:
-                    LOG_ERROR("Blockstate Y rotation should be in 90° steps");
+                    LOG_ERROR("Blockstate Y rotation should be in 90ï¿½ steps");
                     break;
                 }
             }
@@ -256,7 +256,7 @@ namespace Botcraft
 #endif
     {
         weights_sum = 0;
-        random_generator = std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count());
+//        random_generator = std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count());
 
         if (path == "none")
         {

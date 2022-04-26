@@ -2,7 +2,13 @@
 
 #include <botcraft/Game/Entities/EntityManager.hpp>
 #include <botcraft/Game/Entities/LocalPlayer.hpp>
+#include <botcraft/Game/Entities/entities/player/PlayerEntity.hpp>
 #include <botcraft/Network/NetworkManager.hpp>
+#include <botcraft/Utilities/Logger.hpp>
+#include <botcraft/AI/Tasks/AllTasks.hpp>
+#include <random>
+
+#include <iostream>
 
 using namespace Botcraft;
 using namespace ProtocolCraft;
@@ -27,11 +33,11 @@ Status HitCloseHostiles(BehaviourClient& c)
         std::lock_guard<std::mutex> entities_guard(entity_manager->GetMutex());
         for (auto& it : entity_manager->GetEntities())
         {
-            if (it.second->IsMonster() && (it.second->GetPosition()- player_pos).SqrNorm() < 16.0)
+            if ((it.second->IsRemotePlayer() || it.second->IsMonster()) && (it.second->GetPosition()- player_pos).SqrNorm() < 16.0)
             {
                 auto time = last_time_hit.find(it.first);
                 if (time != last_time_hit.end() &&
-                    std::chrono::duration_cast<std::chrono::milliseconds>(now - time->second).count() < 500)
+                    std::chrono::duration_cast<std::chrono::milliseconds>(now - time->second).count() < 2000)
                 {
                     continue;
                 }
@@ -46,15 +52,15 @@ Status HitCloseHostiles(BehaviourClient& c)
                 std::shared_ptr<ServerboundInteractPacket> msg = std::make_shared<ServerboundInteractPacket>();
                 msg->SetAction(1);
                 msg->SetEntityId(it.first);
-#if PROTOCOL_VERSION > 722
                 msg->SetUsingSecondaryAction(false);
-#endif
+
                 std::shared_ptr<ServerboundSwingPacket> msg_swing = std::make_shared<ServerboundSwingPacket>();
                 msg_swing->SetHand(0);
 
                 network_manager->Send(msg);
                 network_manager->Send(msg_swing);
             }
+            
         }
     }
 
@@ -79,4 +85,16 @@ Status CleanLastTimeHit(BehaviourClient& c)
     }
 
     return Status::Success;
+}
+
+Status TravelToMapCenter(BehaviourClient& c)
+{
+//    LOG_INFO("Hmmm");
+std::random_device rd;
+
+    Position target_position = Position(1024 + (std::random_device{}()) % 10 - 5, 68, 1024 + (std::random_device{}()) % 10 - 5);
+    float speed = 4.317f;
+GoTo(c, target_position, 0, 0, speed);
+//    LOG_INFO("DONE!");
+return Status::Success;
 }

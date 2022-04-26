@@ -14,3 +14,5 @@ Botcraft::Status HitCloseHostiles(Botcraft::BehaviourClient& c);
 /// @param c The client performing the action
 /// @return Always return Success
 Botcraft::Status CleanLastTimeHit(Botcraft::BehaviourClient& c);
+
+Botcraft::Status TravelToMapCenter(Botcraft::BehaviourClient& c);

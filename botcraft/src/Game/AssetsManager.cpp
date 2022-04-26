@@ -152,6 +152,7 @@ namespace Botcraft
             LOG_ERROR("Error reading info block file at " << info_file_path << '\n' << e.what());
             return;
         }
+LOG_INFO("ONE");
 
         //Load all the info
         for (auto& info : json)
@@ -279,6 +280,7 @@ namespace Botcraft
 #endif
             }
         }
+LOG_INFO("TWO");
 
         // Add a default block
 #if PROTOCOL_VERSION < 347
@@ -433,6 +435,9 @@ namespace Botcraft
             }
         }
 #else
+LOG_INFO("THREE");
+    auto start = std::chrono::steady_clock::now();
+int counter = 0;
         if (!json.is_object())
         {
             LOG_ERROR("Error block file at " << file_path << " is not a json object as expected");
@@ -508,6 +513,7 @@ namespace Botcraft
                 }
                 else if (render == "block")
                 {
+                    counter += 1;
                     // Remove the minecraft: prefix to get the blockstate name
                     std::string blockstate = blockstate_name.substr(10);
                     blockstates[id] = std::make_unique<Blockstate>(id, transparency[blockstate_name], solidity[blockstate_name], false, false, hardness[blockstate_name], tint_types[blockstate_name], blockstate_name, blockstate, variables);
@@ -521,6 +527,10 @@ namespace Botcraft
             }
         }
 #endif
+    auto end = std::chrono::steady_clock::now();
+
+LOG_INFO("FOUR " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()));
+LOG_INFO("FIVE " + std::to_string(counter));
     }
 
     void AssetsManager::LoadBiomesFile()
