@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 
 void ShowHelp(const char* argv0)
 {
@@ -30,9 +31,12 @@ int main(int argc, char* argv[])
         // Add a name to this thread for logging
         Botcraft::Logger::GetInstance().RegisterThread("main");
 
-        std::string address = "127.0.0.1:25565";
-        std::string login = "BCMobHitter";
+        std::string address = "127.0.0.1";
+        std::string login = "login_";
         std::string password = "";
+        int ports_start = 0;
+        int ports_count = 0;
+        int bots = 1;
 
         if (argc == 1)
         {
@@ -72,6 +76,42 @@ int main(int argc, char* argv[])
                     return 1;
                 }
             }
+            else if (arg == "--bots")
+            {
+                if (i + 1 < argc)
+                {
+                    bots = atoi(argv[++i]);
+                }
+                else
+                {
+                    LOG_FATAL("--bots requires an argument");
+                    return 1;
+                }
+            }
+            else if (arg == "--ports_start")
+            {
+                if (i + 1 < argc)
+                {
+                    ports_start = atoi(argv[++i]);
+                }
+                else
+                {
+                    LOG_FATAL("--ports_start requires an argument");
+                    return 1;
+                }
+            }
+            else if (arg == "--ports_count")
+            {
+                if (i + 1 < argc)
+                {
+                    ports_count = atoi(argv[++i]);
+                }
+                else
+                {
+                    LOG_FATAL("--ports_count requires an argument");
+                    return 1;
+                }
+            }
             else if (arg == "--password")
             {
                 if (i + 1 < argc)
@@ -95,13 +135,31 @@ int main(int argc, char* argv[])
             .build();
 
         Botcraft::SimpleBehaviourClient client(true);
+
+        int player_no = 0;
+        while (bots > 1 && fork() == 0) {
+            player_no++;
+            if (player_no >= bots)
+                break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        login = login + std::to_string(player_no);
+
         client.SetAutoRespawn(true);
 
-        LOG_INFO("Starting connection process");
+        if (ports_start > 0 && ports_count > 0) {
+            int port = ports_start + player_no % ports_count;
+            address += ":" + std::to_string(port);
+
+        }
+
+        LOG_INFO("Starting bot " + login + " " + address);
+
         client.Connect(address, login, password);
         client.SetBehaviourTree(mob_hitter_tree);
 
-std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
         client.RunBehaviourUntilClosed();
 
